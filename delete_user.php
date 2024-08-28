@@ -1,37 +1,50 @@
 <?php
+session_start();
 include("koneksi.php");
-session_start(); // Pastikan session dimulai
+
+// Pastikan user memiliki akses yang tepat
+if (empty($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit;
+}
 
 if (isset($_GET['nip'])) {
     $nip = $_GET['nip'];
 
-    // Validate NIP
+    // Validasi NIP
     if (empty($nip)) {
         $_SESSION['error_message'] = 'NIP tidak valid.';
         header("Location: tabeldata.php");
         exit;
     }
 
-    // Prepare SQL query
+    // Siapkan query SQL
     $query = "DELETE FROM login WHERE nip = ?";
 
-    // Prepare statement
-    $stmt = $koneksi->prepare($query);
-    $stmt->bind_param('s', $nip);
+    // Siapkan statement
+    if ($stmt = $koneksi->prepare($query)) {
+        $stmt->bind_param('s', $nip);
 
-    // Execute query
-    if ($stmt->execute()) {
-        $_SESSION['success_message'] = 'Data pengguna telah dihapus.';
+        // Eksekusi query
+        if ($stmt->execute()) {
+            $_SESSION['success_message'] = 'Data pengguna telah dihapus.';
+        } else {
+            $_SESSION['error_message'] = 'Gagal menghapus data pengguna: ' . $stmt->error;
+        }
+
+        // Tutup statement
+        $stmt->close();
     } else {
-        $_SESSION['error_message'] = 'Gagal menghapus data pengguna: ' . $stmt->error;
+        $_SESSION['error_message'] = 'Gagal menyiapkan statement: ' . $koneksi->error;
     }
 
-    // Close statement
-    $stmt->close();
+    // Tutup koneksi
+    $koneksi->close();
+} else {
+    $_SESSION['error_message'] = 'NIP tidak ditemukan.';
 }
 
-// Close connection
-$koneksi->close();
+// Redirect ke tabeldata.php
 header("Location: tabeldata.php");
 exit;
 ?>

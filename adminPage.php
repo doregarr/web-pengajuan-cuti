@@ -144,6 +144,11 @@ $fotoUrl = 'foto/' . $foto; // Path ke folder tempat foto disimpan
               <i class="bi bi-circle"></i><span>Table Data Pegawai </span>
             </a>
           </li>
+          <li>
+            <a href="tambahdata.php">
+              <i class="bi bi-circle"></i><span>Tambah Data Pegawai </span>
+            </a>
+          </li>
         </ul>
       </li><!-- End Tables Nav -->
 

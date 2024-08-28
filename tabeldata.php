@@ -50,6 +50,7 @@ $result = $stmt->get_result();
     <!-- Favicons -->
     <link href="assets/img/logodilmil.png" rel="icon">
     <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -220,30 +221,30 @@ $result = $stmt->get_result();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            if ($result->num_rows > 0) {
-                                $i = $offset + 1;
-                                while ($row = $result->fetch_assoc()) {
-                                    $fotoUrl = 'foto/' . htmlspecialchars($row['foto']); // Path to the folder where photos are stored
-                                    echo "<tr>";
-                                    echo "<th scope='row'>" . $i++ . "</th>";
-                                    echo "<td>" . htmlspecialchars($row['nip']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['nama']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['pangkat']) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['jabatan']) . "</td>";
-                                    echo "<td><img src='$fotoUrl' class='profile-img' alt='Foto'></td>";
-                                    echo "<td>" . htmlspecialchars($row['role']) . "</td>";
-                                    echo "<td>
-                                        <button class='btn btn-warning btn-edit' data-bs-toggle='modal' data-bs-target='#editModal' data-nip='" . htmlspecialchars($row['nip']) . "' data-nama='" . htmlspecialchars($row['nama']) . "' data-pangkat='" . htmlspecialchars($row['pangkat']) . "' data-jabatan='" . htmlspecialchars($row['jabatan']) . "' data-role='" . htmlspecialchars($row['role']) . "' data-foto='" . htmlspecialchars($row['foto']) . "'>Edit</button>
-                                        <button class='btn btn-danger btn-delete' data-nip='" . htmlspecialchars($row['nip']) . "'>Hapus</button>
-                                    </td>";
-                                    echo "</tr>";
-                                }
-                            } else {
-                                echo "<tr><td colspan='8' class='text-center'>Tidak ada data</td></tr>";
-                            }
-                            ?>
-                        </tbody>
+<?php
+if ($result->num_rows > 0) {
+    $i = $offset + 1;
+    while ($row = $result->fetch_assoc()) {
+        $fotoUrl = 'foto/' . htmlspecialchars($row['foto']); // Path to the folder where photos are stored
+        echo "<tr>";
+        echo "<th scope='row'>" . $i++ . "</th>";
+        echo "<td>" . htmlspecialchars($row['nip']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['nama']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['pangkat']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['jabatan']) . "</td>";
+        echo "<td><img src='$fotoUrl' class='profile-img' alt='Foto'></td>";
+        echo "<td>" . htmlspecialchars($row['role']) . "</td>";
+        echo "<td>
+            <button class='btn btn-warning btn-edit' data-bs-toggle='modal' data-bs-target='#editModal' data-nip='" . htmlspecialchars($row['nip']) . "' data-nama='" . htmlspecialchars($row['nama']) . "' data-pangkat='" . htmlspecialchars($row['pangkat']) . "' data-jabatan='" . htmlspecialchars($row['jabatan']) . "' data-role='" . htmlspecialchars($row['role']) . "' data-foto='" . htmlspecialchars($row['foto']) . "'>Edit</button>
+            <button class='btn btn-danger' onclick='confirmDelete(\"" . htmlspecialchars($row['nip']) . "\")'>Hapus</button>
+        </td>";
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='8' class='text-center'>Tidak ada data</td></tr>";
+}
+?>
+</tbody>
                     </table>
 
                     <!-- Showing info -->
@@ -350,6 +351,8 @@ $result = $stmt->get_result();
 <script src="assets/js/main.js"></script>
 
 
+<!-- Your existing code... -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Handle Edit Button Click
@@ -405,27 +408,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Handle Delete Button Click
-    document.querySelectorAll('.btn-delete').forEach(button => {
-        button.addEventListener('click', function () {
-            const nip = this.getAttribute('data-nip');
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Anda tidak dapat membatalkan aksi ini!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Use window.location to delete and refresh
-                    window.location.href = 'delete_user.php?nip=' + nip;
-                }
-            });
-        });
-    });
+
 });
 </script>
+<script>
+    function confirmDelete(nip) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data ini akan dihapus secara permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete script with the selected nip
+                window.location.href = 'delete_user.php?nip=' + encodeURIComponent(nip);
+            }
+        });
+    }
+    </script>
+
 </body>
 </html>
